@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
-import { gmtTimezones, times } from './../constants';
+import { times } from './../constants';
 import {
 	getFormattedToday,
 	getFormattedYesterday,
@@ -44,6 +44,34 @@ const formattedThisSunday = getFormattedThisSunday();
 const formattedNextMonday = getFormattedNextMonday();
 const formattedNextSunday = getFormattedNextSunday();
 
+const gmtTimezones = [
+    "-12:00",
+    "-11:00",
+    "-10:00",
+    "-9:00",
+    "-8:00",
+    "-7:00",
+    "-6:00",
+    "-5:00",
+    "-4:00",
+    "-3:00",
+    "-2:00",
+    "-1:00",
+    "+0:00",
+    "+1:00",
+    "+2:00",
+    "+3:00",
+    "+4:00",
+    "+5:00",
+    "+6:00",
+    "+7:00",
+    "+8:00",
+    "+9:00",
+    "+10:00",
+    "+11:00",
+    "+12:00",
+  ];
+  
 export const Calendar = () => {
 	const [currentDateTime, setCurrentDateTime] = useState('');
 	const [selectedTimezone, setSelectedTimezone] = useState('');
