@@ -51,3 +51,14 @@ body {
   background: transparent;
   color: inherit;
 }
+
+.icon {
+  fill: #000 !important; /* Начальный цвет иконки с переопределением !important */
+  transition: fill 0.3s; /* Анимация изменения цвета */
+}
+
+.icon:hover {
+  fill: black !important; /* Цвет при наведении (черный) с переопределением !important */
+}
+
+
