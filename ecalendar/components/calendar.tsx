@@ -30,11 +30,11 @@ interface CalendarEvent {
 	previous: string;
 }
 
-type ImportanceIcons = {
-	Low: JSX.Element;
-	Medium: JSX.Element;
-	High: JSX.Element;
-};
+interface ImportanceIcons {
+    Low: JSX.Element;
+    Medium: JSX.Element;
+    High: JSX.Element;
+}
 
 const formattedToday = getFormattedToday();
 const formattedYesterday = getFormattedYesterday();
@@ -221,11 +221,12 @@ export const Calendar = () => {
 		}
 	};
 
-	const handleStartDateChange = (event) => {
+	const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setStartDate(event.target.value);
 	};
+	
 
-	const handleEndDateChange = (event) => {
+	const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setEndDate(event.target.value);
 	};
 
