@@ -9,7 +9,7 @@ export default function Home() {
 				<meta name='description' content='Vittaverse' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<main>
+			<main className='bg-black'>
 				<Calendar />
 			</main>
 		</div>
