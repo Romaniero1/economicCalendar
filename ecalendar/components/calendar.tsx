@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
 import { offsets, times, countries } from './../constants';
+import { format, parseISO } from 'date-fns';
 import {
 	getFormattedToday,
 	getFormattedYesterday,
@@ -223,23 +224,6 @@ export const Calendar = () => {
 		setStartDate('');
 		setEndDate('');
 	};
-
-	function formatDate(inputDate) {
-		const dateParts = inputDate.split('-'); // Assuming the input date is in "YYYY-MM-DD" format
-		const year = dateParts[0];
-		const month = dateParts[1];
-		const day = dateParts[2];
-	  
-		// Define arrays for month names and days of the week
-		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-		const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-	  
-		// Use the parsed date components to construct the formatted date string
-		const formattedDate = `${daysOfWeek[new Date(inputDate).getDay()]}, ${months[parseInt(month, 10) - 1]} ${day}, ${year}`;
-		
-		return formattedDate;
-	  }
-
 	  
 	return (
 		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white">
@@ -474,7 +458,7 @@ export const Calendar = () => {
 										<React.Fragment key={date}>
 											<tr className="h-12 bg-white-rgba">
 												<td colSpan={7} className="pl-5 border-t-[1px]">
-												{formatDate(date)}
+												{format(parseISO(date), 'EEEE, MMM dd, yyyy')}
 
 												</td>
 											</tr>
