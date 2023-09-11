@@ -31,9 +31,9 @@ interface CalendarEvent {
 }
 
 interface ImportanceIcons {
-    Low: JSX.Element;
-    Medium: JSX.Element;
-    High: JSX.Element;
+	Low: JSX.Element;
+	Medium: JSX.Element;
+	High: JSX.Element;
 }
 
 const formattedToday = getFormattedToday();
@@ -111,9 +111,9 @@ export const Calendar = () => {
 		const eventDateTime = new Date(`${eventDate} ${eventTime}`);
 		const currentDateTime = new Date();
 		return eventDateTime < currentDateTime;
-	  };
+	};
 
-	  
+
 	const handleCountryChange = (country: string) => {
 		const newSelectedCountries = [...selectedCountries];
 
@@ -195,7 +195,7 @@ export const Calendar = () => {
 		Low: <Image src={Star1} width={56} height={16} alt="Low" />,
 		Medium: <Image src={Star2} width={56} height={16} alt="Medium" />,
 		High: <Image src={Star3} width={56} height={16} alt="High" />,
-	  };
+	};
 
 	const handleTimeRangeClick = (timeRange: string) => {
 		if (timeRange === selectedTimeRange) {
@@ -224,7 +224,7 @@ export const Calendar = () => {
 	const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setStartDate(event.target.value);
 	};
-	
+
 
 	const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setEndDate(event.target.value);
@@ -477,7 +477,7 @@ export const Calendar = () => {
 													<td className="text-center border-t-[1px] border-r-[1px]">{event.country}</td>
 													<td className="border-t-[1px] border-r-[1px]">
 														<div className='flex justify-center items-center h-[100%]'>
-															{importanceIcons[event.impact]}
+															{importanceIcons[event.impact as keyof ImportanceIcons]}
 														</div>
 													</td>
 													<td className="pl-5 border-t-[1px] border-r-[1px]">{event.event}</td>
