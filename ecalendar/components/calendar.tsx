@@ -26,7 +26,7 @@ interface CalendarEvent {
 	country: string;
 	impact: string;
 	actual: string;
-	forecast: string;
+	estimate: string;
 	previous: string;
 }
 
@@ -482,7 +482,7 @@ export const Calendar = () => {
 													</td>
 													<td className="pl-5 border-t-[1px] border-r-[1px]">{event.event}</td>
 													<td className="text-center border-t-[1px] border-r-[1px]">{event.actual}</td>
-													<td className="text-center border-t-[1px] border-r-[1px]">{event.forecast}</td>
+													<td className="text-center border-t-[1px] border-r-[1px]">{event.estimate}</td>
 													<td className="text-center border-t-[1px]">{event.previous}</td>
 												</tr>
 											))}
