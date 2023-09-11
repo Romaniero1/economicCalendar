@@ -195,7 +195,7 @@ export const Calendar = () => {
 		Low: <Image src={Star1} width={56} height={16} alt="Low" />,
 		Medium: <Image src={Star2} width={56} height={16} alt="Medium" />,
 		High: <Image src={Star3} width={56} height={16} alt="High" />,
-	};
+	  };
 
 	const handleTimeRangeClick = (timeRange: string) => {
 		if (timeRange === selectedTimeRange) {
