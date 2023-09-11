@@ -37,7 +37,6 @@ export const getFormattedNextMonday = () => {
   const daysUntilNextMonday = 1 + ((7 - dayOfWeek) % 7); 
   const nextMonday = new Date(today);
   nextMonday.setDate(today.getDate() + daysUntilNextMonday); 
-  console.log(nextMonday)
   return nextMonday.toISOString().split("T")[0]; 
 };
 
@@ -46,6 +45,5 @@ export const getFormattedNextSunday = () => {
   const dayOfNextWeekSunday = nextSunday.getDay();
   const differenceNextWeekSunday = 14 - dayOfNextWeekSunday; 
   nextSunday.setDate(nextSunday.getDate() + differenceNextWeekSunday);
-  console.log(nextSunday)
   return nextSunday.toISOString().split("T")[0];
 };
