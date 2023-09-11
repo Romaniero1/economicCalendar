@@ -59,7 +59,6 @@ export const Calendar = () => {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
-
 	useEffect(() => {
 		const formatDateTime = () => {
 			const options = {
@@ -216,7 +215,6 @@ export const Calendar = () => {
 			} else if (timeRange === "Next week") {
 				filteredData = calendarData.filter((event) => event.date >= formattedNextMonday && event.date <= formattedNextSunday);
 			}
-			console.log(filteredData)
 			setFilteredEvents(filteredData);
 		}
 	};

@@ -4,6 +4,7 @@ export const getFormattedToday = () => {
 
 export const getFormattedYesterday = () => {
   const yesterday = new Date();
+  console.log(yesterday)
   yesterday.setDate(yesterday.getDate() - 1);
   return yesterday.toISOString().split("T")[0];
 };
