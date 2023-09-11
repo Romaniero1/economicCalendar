@@ -75,18 +75,16 @@ export const Calendar = () => {
 		};
 
 		const getSystemTimezone = () => {
-			const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			const offsets = `${systemTimezone.startsWith('-') ? '-' : '+'}${Math.abs(
-				new Date().getTimezoneOffset() / 60
-			)}:00`;
+			const systemOffset = new Date().getTimezoneOffset();
+			const sign = systemOffset < 0 ? '+' : '-';
+			const offsets = `${sign}${Math.abs(systemOffset / 60)}:00`;
 			setSelectedTimezone(offsets);
-		};
+		  };
 
 		const fetchCalendarData = async () => {
 			try {
 				const response = await axios.get("https://tickers.vittaverse.com/api/calendar/economic-calendar");
 				const data = JSON.parse(response.data);
-
 				setCalendarData(data);
 			} catch (error) {
 				console.error("Ошибка при получении данных календаря:", error);
@@ -177,18 +175,10 @@ export const Calendar = () => {
 			groupedCalendarData[event.date] = [];
 		}
 		groupedCalendarData[event.date].push(event);
+		console.log(groupedCalendarData)
 	});
 
-	const formatDate = (dateString: string) => {
-		const options: Intl.DateTimeFormatOptions = {
-			weekday: 'long',
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric',
-		};
-		const date = new Date(dateString);
-		return date.toLocaleDateString('en-US', options);
-	};
+
 
 	const importanceIcons: ImportanceIcons = {
 		Low: <Image src={Star1} width={56} height={16} alt="Low" />,
@@ -215,6 +205,7 @@ export const Calendar = () => {
 			} else if (timeRange === "Next week") {
 				filteredData = calendarData.filter((event) => event.date >= formattedNextMonday && event.date <= formattedNextSunday);
 			}
+			//console.log(filteredData)
 			setFilteredEvents(filteredData);
 		}
 	};
@@ -233,6 +224,23 @@ export const Calendar = () => {
 		setEndDate('');
 	};
 
+	function formatDate(inputDate) {
+		const dateParts = inputDate.split('-'); // Assuming the input date is in "YYYY-MM-DD" format
+		const year = dateParts[0];
+		const month = dateParts[1];
+		const day = dateParts[2];
+	  
+		// Define arrays for month names and days of the week
+		const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+		const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+	  
+		// Use the parsed date components to construct the formatted date string
+		const formattedDate = `${daysOfWeek[new Date(inputDate).getDay()]}, ${months[parseInt(month, 10) - 1]} ${day}, ${year}`;
+		
+		return formattedDate;
+	  }
+
+	  
 	return (
 		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white">
 			<div className="flex justify-between items-center">
@@ -466,7 +474,8 @@ export const Calendar = () => {
 										<React.Fragment key={date}>
 											<tr className="h-12 bg-white-rgba">
 												<td colSpan={7} className="pl-5 border-t-[1px]">
-													{formatDate(date)}
+												{formatDate(date)}
+
 												</td>
 											</tr>
 											{eventsForDate.reverse().map((event, index) => (
