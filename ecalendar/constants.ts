@@ -1,4 +1,4 @@
-export const gmtTimezones = [
+export const offsets = [
     "-12:00",
     "-11:00",
     "-10:00",
@@ -33,3 +33,12 @@ export const gmtTimezones = [
     "This week",
     "Next week",
   ];
+
+  export const countries = [
+    "IL", "ZA", "TW", "JP", "US", "CA", "MX", "PL", "IN", "NL",
+    "IE", "UK", "PH", "EU", "DE", "FR", "ES", "CH", "DK", "NO",
+    "SG", "TH", "ID", "AU", "NZ", "SV", "CO", "SI", "LV", "BE",
+    "HK", "IT", "SE", "MT", "BR", "RU", "LU", "SK", "ME", "GR",
+    "CZ", "EE", "CN", "KR", "PT", "CY", "AT", "HU", "FI", "LT",
+    "EC", "TL"
+];

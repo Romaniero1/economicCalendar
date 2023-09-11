@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import axios from 'axios';
-import { times } from './../constants';
+import { offsets, times, countries } from './../constants';
 import {
 	getFormattedToday,
 	getFormattedYesterday,
@@ -12,7 +12,7 @@ import {
 	getFormattedThisSunday,
 	getFormattedNextMonday,
 	getFormattedNextSunday,
-} from './../dateUtils'; // Adjust the import path as needed
+} from './../dateUtils';
 
 import Filter from '/public/filter.svg';
 import Star1 from '/public/star1.svg';
@@ -44,34 +44,6 @@ const formattedThisSunday = getFormattedThisSunday();
 const formattedNextMonday = getFormattedNextMonday();
 const formattedNextSunday = getFormattedNextSunday();
 
-const gmtTimezones = [
-    "-12:00",
-    "-11:00",
-    "-10:00",
-    "-9:00",
-    "-8:00",
-    "-7:00",
-    "-6:00",
-    "-5:00",
-    "-4:00",
-    "-3:00",
-    "-2:00",
-    "-1:00",
-    "+0:00",
-    "+1:00",
-    "+2:00",
-    "+3:00",
-    "+4:00",
-    "+5:00",
-    "+6:00",
-    "+7:00",
-    "+8:00",
-    "+9:00",
-    "+10:00",
-    "+11:00",
-    "+12:00",
-  ];
-  
 export const Calendar = () => {
 	const [currentDateTime, setCurrentDateTime] = useState('');
 	const [selectedTimezone, setSelectedTimezone] = useState('');
@@ -79,6 +51,14 @@ export const Calendar = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [selectedTimeRange, setSelectedTimeRange] = useState('All');
 	const [filteredEvents, setFilteredEvents] = useState<CalendarEvent[]>([]);
+	const [showFilters, setShowFilters] = useState(false);
+	const [showLowImportance, setShowLowImportance] = useState(true);
+	const [showMediumImportance, setShowMediumImportance] = useState(true);
+	const [showHighImportance, setShowHighImportance] = useState(true);
+	const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+	const [startDate, setStartDate] = useState('');
+	const [endDate, setEndDate] = useState('');
+
 
 	useEffect(() => {
 		const formatDateTime = () => {
@@ -97,10 +77,10 @@ export const Calendar = () => {
 
 		const getSystemTimezone = () => {
 			const systemTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-			const gmtTimezone = `${systemTimezone.startsWith('-') ? '+' : '-'}${Math.abs(
+			const offsets = `${systemTimezone.startsWith('-') ? '-' : '+'}${Math.abs(
 				new Date().getTimezoneOffset() / 60
 			)}:00`;
-			setSelectedTimezone(gmtTimezone);
+			setSelectedTimezone(offsets);
 		};
 
 		const fetchCalendarData = async () => {
@@ -127,9 +107,62 @@ export const Calendar = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	const handleCountryChange = (country: string) => {
+		const newSelectedCountries = [...selectedCountries];
+
+		if (newSelectedCountries.includes(country)) {
+			newSelectedCountries.splice(newSelectedCountries.indexOf(country), 1);
+		} else {
+			newSelectedCountries.push(country);
+		}
+
+		setSelectedCountries(newSelectedCountries);
+	};
+
+	const handleSelectAllCountries = () => {
+		if (selectedCountries.length === countries.length) {
+			setSelectedCountries([]);
+		} else {
+			setSelectedCountries(countries);
+		}
+	};
+
+	const handleTimezoneChange = (newOffset: string) => {
+		const [hours, minutes] = newOffset.split(':').map(Number);
+
+		const time = new Date();
+		const currentDateTimeUTC = new Date(
+			time.toLocaleString('en-US', { timeZone: 'Atlantic/Azores' })
+		);
+
+		currentDateTimeUTC.setHours(currentDateTimeUTC.getHours() + hours);
+		currentDateTimeUTC.setMinutes(currentDateTimeUTC.getMinutes() + minutes);
+
+		const options = {
+			weekday: 'long' as const,
+			year: 'numeric' as const,
+			month: 'long' as const,
+			day: 'numeric' as const,
+			hour: 'numeric' as const,
+			minute: 'numeric' as const,
+			hour12: true,
+		};
+		const dateTimeString = currentDateTimeUTC.toLocaleString('en-US', options);
+		setCurrentDateTime(dateTimeString);
+
+		setSelectedTimezone(newOffset);
+	};
+
 	const filteredEvent = calendarData.filter((event) =>
-		event.event.toLowerCase().includes(searchQuery.toLowerCase())
+		event.event.toLowerCase().includes(searchQuery.toLowerCase()) &&
+		((event.impact === 'Low' && showLowImportance) ||
+			(event.impact === 'Medium' && showMediumImportance) ||
+			(event.impact === 'High' && showHighImportance)) &&
+		(selectedCountries.length === 0 || selectedCountries.includes(event.country)) &&
+		(startDate === '' || new Date(event.date) >= new Date(startDate)) &&
+		(endDate === '' || new Date(event.date) <= new Date(endDate))
 	);
+
 
 	const groupedCalendarData: { [date: string]: CalendarEvent[] } = {};
 
@@ -181,10 +214,23 @@ export const Calendar = () => {
 		}
 	};
 
+	const handleStartDateChange = (event) => {
+		setStartDate(event.target.value);
+	};
+
+	const handleEndDateChange = (event) => {
+		setEndDate(event.target.value);
+	};
+
+	const handleClearDateFilters = () => {
+		setStartDate('');
+		setEndDate('');
+	};
+
 	return (
 		<div className="flex flex-col mx-[8%] pt-10 ">
 			<div className="flex justify-between items-center">
-				<div className="flex">
+				<div className="flex lg:flex-row flex-col">
 					<div className="">
 						<h1 className="">
 							Economic
@@ -194,20 +240,20 @@ export const Calendar = () => {
 						<h1>Calendar</h1>
 					</div>
 				</div>
-				<div className="flex items-center">
+				<div className="flex items-center ml-10 flex-col lg:flex-row">
 					<div>
 						<h2>{currentDateTime}</h2>
 					</div>
-					<div className="ml-6 px-3 border-2 rounded-full">
+					<div className="ml-6 px-3 border-2 rounded-full mt-4 lg:mt-0">
 						<h2>
 							<select
 								className="timezone-dropdown select-none bg-transparent w-[110px] h-8"
 								value={selectedTimezone}
-								onChange={(e) => setSelectedTimezone(e.target.value)}
+								onChange={(e) => handleTimezoneChange(e.target.value)}
 							>
-								{gmtTimezones.map((timezone, index) => (
-									<option key={index} value={timezone}>
-										GMT{timezone}
+								{offsets.map((offset, index) => (
+									<option key={index} value={offset}>
+										GMT{offset}
 									</option>
 								))}
 							</select>
@@ -216,7 +262,7 @@ export const Calendar = () => {
 				</div>
 			</div>
 
-			<div className="pt-10 flex">
+			<div className="pt-10 flex flex-col lg:flex-row">
 				<div className="flex-grow">
 					<input
 						type="text"
@@ -226,39 +272,154 @@ export const Calendar = () => {
 						onChange={(e) => setSearchQuery(e.target.value)}
 					/>
 				</div>
-				<div className="flex pl-4">
-					{times.map((time, index) => (
-						<button
-							key={index}
-							className={`flex justify-center items-center w-[100px] h-10 rounded-full 
+				<div className='flex pt-2 lg:pt-0 justify-between'>
+					<div className="flex pl-0 lg:pl-4">
+						{times.map((time, index) => (
+							<button
+								key={index}
+								className={`flex justify-center items-center w-[100px] h-10 rounded-full 
 			  				bg-transparent border-white border-[1px] hover:bg-white hover:text-black 
 			  				${selectedTimeRange === time ? 'bg-white text-black' : ''}`
-							}
-							onClick={() => handleTimeRangeClick(time)}
-						>
-							{time}
+								}
+								onClick={() => handleTimeRangeClick(time)}
+							>
+								{time}
+							</button>
+						))}
+					</div>
+					<div className="pl-0 lg:pl-4 relative">
+						<button className="flex justify-center items-center w-[84px] h-10 rounded-full bg-transparent border-white border-[1px] hover:border-2"
+							onClick={() => setShowFilters(!showFilters)}>
+							<Image src={Filter} width={16} height={16} alt="Logo" />
+							<p className="pl-1">Filter</p>
 						</button>
-					))}
-				</div>
-				<div className="pl-4">
-					<button className="flex justify-center items-center w-[84px] h-10 rounded-full bg-transparent border-white border-[1px]">
-						<Image src={Filter} width={16} height={16} alt="Logo" />
-						<p className="pl-1">Filter</p>
-					</button>
+						{showFilters && (
+							<div className="absolute bg-white rounded-[20px] p-4 mt-4 h-[320px] w-[280px] right-0 text-black text-body">
+								<button
+									className="absolute top-2 right-2 p-2 "
+									onClick={() => setShowFilters(false)}
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										className="h-4 w-4 text-gray-500 hover:text-gray-700"
+										viewBox="0 0 20 20"
+										fill="currentColor"
+									>
+										<path
+											fillRule="evenodd"
+											d="M14.293 5.293a1 1 0 0 1 1.414 1.414L11.414 11l4.293 4.293a1 1 0 1 1-1.414 1.414L10 12.414l-4.293 4.293a1 1 0 1 1-1.414-1.414L8.586 11 4.293 6.707a1 1 0 0 1 1.414-1.414L10 9.586l4.293-4.293z"
+											clipRule="evenodd"
+										/>
+									</svg>
+								</button>
+								<div className='pt-2 flex items-center'>
+									<p className='mr-4'>Period</p>
+									<button
+										className='text-[8px] mt-[2px] font-[200]'
+										onClick={handleClearDateFilters}
+									>
+										Clear All
+									</button>
+								</div>
+								<div className='pt-2'>
+									<div className='flex justify-center items-center'>
+										<input
+											type='date'
+											placeholder='Start Date'
+											className='mr-2 border-[1px] w-[110px] h-7 p-1 rounded-[4px]'
+											value={startDate}
+											onChange={handleStartDateChange}
+										/>
+										to
+										<input
+											type='date'
+											placeholder='End Date'
+											className='ml-2 border-[1px] w-[110px] h-7 p-1 rounded-[4px]'
+											value={endDate}
+											onChange={handleEndDateChange}
+										/>
+									</div>
+								</div>
+								<div className='pt-4 flex items-center'>
+									<p className='mr-4'>Country</p>
+									<button
+										className='text-[8px] mt-[2px] font-[200] pt-[1px]'
+										onClick={handleSelectAllCountries}
+									>
+										Select/Clear All
+									</button>
+								</div>
+								<div className="w-[245px] h-[90px] overflow-y-auto grid grid-cols-3 gap-2 pt-2">
+									{countries.map((country) => (
+										<div key={country} className='flex items-center pt-1'>
+											<input
+												type='checkbox'
+												checked={selectedCountries.includes(country)}
+												onChange={() => handleCountryChange(country)}
+												id={`country-${country}`}
+												className='accent-black'
+											/>
+											<label htmlFor={`country-${country}`} className='pl-1'>
+												{country}
+											</label>
+										</div>
+									))}
+								</div>
+								<div className='pt-4'>
+									<p>Importance</p>
+									<div className="flex items-center pt-1">
+										<input
+											type="checkbox"
+											checked={showLowImportance}
+											onChange={() => setShowLowImportance(!showLowImportance)}
+											id="lowImportance"
+											className='accent-black'
+										/>
+										<label htmlFor="lowImportance" className="pl-1">
+											<Image src={Star1} width={56} height={16} alt="Low" />
+										</label>
+									</div>
+									<div className="flex items-center pt-1">
+										<input
+											type="checkbox"
+											checked={showMediumImportance}
+											onChange={() => setShowMediumImportance(!showMediumImportance)}
+											id="mediumImportance"
+											className='accent-black'
+										/>
+										<label htmlFor="mediumImportance" className="pl-1">
+											<Image src={Star2} width={56} height={16} alt="Medium" />
+										</label>
+									</div>
+									<div className="flex items-center pt-1">
+										<input
+											type="checkbox"
+											checked={showHighImportance}
+											onChange={() => setShowHighImportance(!showHighImportance)}
+											id="highImportance"
+											className='accent-black'
+										/>
+										<label htmlFor="highImportance" className="pl-1">
+											<Image src={Star3} width={56} height={16} alt="High" />
+										</label>
+									</div>
+								</div>
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
-
-			<div className='border-[1px] rounded-t-[20px] rounded-b-[20px] rounded- mt-4'>
-				<table className="w-full">
+			<div className='lg:border-[1px] rounded-t-[20px] rounded-b-[20px] rounded- mt-4'>
+				<table className="w-full border-[1px] rounded-t-[20px] rounded-b-[20px]">
 					<thead className=" h-12">
 						<tr>
-							<th className='w-[199px] border-r-[1px]'>Time</th>
-							<th className='w-[180px] border-r-[1px]'>Country</th>
-							<th className='w-[158px] border-r-[1px]'>Importance</th>
-							<th className='w-[322px] border-r-[1px]'>Event</th>
-							<th className='w-[98px] border-r-[1px]'>Actual</th>
-							<th className='w-[98px] border-r-[1px]'>Forecast</th>
-							<th className='w-[98px] '>Previous</th>
+							<th className='min-w-[100px] lg:w-[199px] border-r-[1px]'>Time</th>
+							<th className='min-w-[80px] lg:w-[180px] border-r-[1px]'>Country</th>
+							<th className='min-w-[100px] lg:w-[158px] border-r-[1px]'>Importance</th>
+							<th className='min-w-[180px] lg:w-[322px] border-r-[1px]'>Event</th>
+							<th className='min-w-[70px] lg:w-[98px] border-r-[1px]'>Actual</th>
+							<th className='min-w-[70px] lg:w-[98px] border-r-[1px]'>Forecast</th>
+							<th className='min-w-[70px] lg:w-[98px] '>Previous</th>
 						</tr>
 					</thead>
 					<tbody className=''>
@@ -281,12 +442,12 @@ export const Calendar = () => {
 										return eventItem.date === formattedTomorrow;
 									} else if (selectedTimeRange === 'This week') {
 										return (
-											eventItem.date >= formattedThisMonday && 
+											eventItem.date >= formattedThisMonday &&
 											eventItem.date <= formattedThisSunday
 										);
 									} else if (selectedTimeRange === 'Next week') {
 										return (
-											eventItem.date >= formattedNextMonday && 
+											eventItem.date >= formattedNextMonday &&
 											eventItem.date <= formattedNextSunday
 										);
 									} else {
@@ -322,7 +483,6 @@ export const Calendar = () => {
 								}
 								return null;
 							})}
-
 					</tbody>
 				</table>
 			</div>

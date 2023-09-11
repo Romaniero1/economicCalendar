@@ -15,20 +15,23 @@ export const getFormattedTomorrow = () => {
 };
 
 export const getFormattedThisMonday = () => {
-  const monday = new Date();
-  const dayOfWeekMonday = monday.getDay(); // 0 (воскресенье) до 6 (суббота)
-  const differenceMonday = dayOfWeekMonday === 0 ? 6 : dayOfWeekMonday - 1; // Разница с понедельником
-  monday.setDate(monday.getDate() - differenceMonday); // Устанавливаем дату на понедельник текущей недели
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (today.getDay() + 6) % 7); // Находим понедельник текущей недели
+  console.log(monday)
   return monday.toISOString().split("T")[0]; // Преобразуем в формат 'yyyy-mm-dd'
 };
 
+
 export const getFormattedThisSunday = () => {
-  const Sunday = new Date();
-  const dayOfWeekSunday = Sunday.getDay(); // 0 (воскресенье) до 6 (суббота)
-  const differenceSunday = 0 - dayOfWeekSunday; // Разница с воскресеньем для текущей недели
-  Sunday.setDate(Sunday.getDate() + differenceSunday); // Устанавливаем дату на текущее воскресенье
-  return Sunday.toISOString().split("T")[0]; // Преобразуем в формат 'yyyy-mm-dd'
-};
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (воскресенье) до 6 (суббота)
+    const daysUntilSunday = 7 - dayOfWeek; // Количество дней до следующего воскресенья
+    const nextSunday = new Date(today.getTime() + daysUntilSunday * 24 * 60 * 60 * 1000); // Вычисляем следующее воскресенье
+    console.log(nextSunday)
+    return nextSunday.toISOString().split("T")[0]; // Преобразуем в формат 'yyyy-mm-dd'
+  };
+
 
 export const getFormattedNextMonday = () => {
   const today = new Date();
@@ -36,13 +39,15 @@ export const getFormattedNextMonday = () => {
   const daysUntilNextMonday = 1 + ((7 - dayOfWeek) % 7); // Вычисляем, сколько дней осталось до следующего понедельника
   const nextMonday = new Date(today);
   nextMonday.setDate(today.getDate() + daysUntilNextMonday); // Устанавливаем дату на следующий понедельник
+  console.log(nextMonday)
   return nextMonday.toISOString().split("T")[0]; // Преобразуем в формат 'yyyy-mm-dd'
 };
 
 export const getFormattedNextSunday = () => {
   const nextSunday = new Date();
   const dayOfNextWeekSunday = nextSunday.getDay(); // 0 (воскресенье) до 6 (суббота)
-  const differenceNextWeekSunday = 7 - dayOfNextWeekSunday; // Разница с воскресеньем для следующей недели
+  const differenceNextWeekSunday = 14 - dayOfNextWeekSunday; // Разница с воскресеньем для следующей недели
   nextSunday.setDate(nextSunday.getDate() + differenceNextWeekSunday); // Устанавливаем дату на следующее воскресенье
+  console.log(nextSunday)
   return nextSunday.toISOString().split("T")[0]; // Преобразуем в формат 'yyyy-mm-dd'
 };

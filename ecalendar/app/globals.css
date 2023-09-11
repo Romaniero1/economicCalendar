@@ -12,7 +12,7 @@ h2 {
   @apply text-lg font-sans font-[400];
 }
 h1 {
-  @apply text-xl font-sans font-[400];
+  @apply text-xl font-sans font-[400] ;
 }
 
 @tailwind components;
@@ -61,4 +61,6 @@ body {
   fill: black !important; /* Цвет при наведении (черный) с переопределением !important */
 }
 
-
+table {
+  border-collapse: separate
+}
