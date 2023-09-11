@@ -236,7 +236,7 @@ export const Calendar = () => {
 	};
 
 	return (
-		<div className="flex flex-col mx-[8%] pt-10 ">
+		<div className="flex flex-col mx-[8%] pt-10 bg-black text-white">
 			<div className="flex justify-between items-center">
 				<div className="flex lg:flex-row flex-col">
 					<div className="">
