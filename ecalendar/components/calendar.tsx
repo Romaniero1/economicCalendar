@@ -255,12 +255,12 @@ export const Calendar = () => {
 					<div className="ml-6 px-3 border-2 rounded-full mt-4 lg:mt-0">
 						<h2>
 							<select
-								className="timezone-dropdown select-none bg-transparent w-[110px] h-8"
+								className="timezone-dropdown select-none bg-transparent w-[110px] h-8 "
 								value={selectedTimezone}
 								onChange={(e) => handleTimezoneChange(e.target.value)}
 							>
 								{offsets.map((offset, index) => (
-									<option key={index} value={offset}>
+									<option key={index} value={offset} className="text-black bg-transparent">
 										GMT{offset}
 									</option>
 								))}
