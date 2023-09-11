@@ -31,7 +31,7 @@ const config: Config = {
       fade: "#131313",
       white: "#FFFFFF",
       black: "#000000",
-      grey: "#101010",
+      grey: "#808080",
       light: '#B4B4B4',
       'white-rgba': 'rgba(255, 255, 255, 0.24)',
     },

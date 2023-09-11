@@ -107,6 +107,13 @@ export const Calendar = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	const isEventPast = (eventDate: string, eventTime: string) => {
+		const eventDateTime = new Date(`${eventDate} ${eventTime}`);
+		const currentDateTime = new Date();
+		return eventDateTime < currentDateTime;
+	  };
+
+	  
 	const handleCountryChange = (country: string) => {
 		const newSelectedCountries = [...selectedCountries];
 
@@ -464,7 +471,7 @@ export const Calendar = () => {
 												</td>
 											</tr>
 											{eventsForDate.reverse().map((event, index) => (
-												<tr key={index} className="h-12">
+												<tr key={index} className={`h-12 ${isEventPast(event.date, event.time) ? 'text-grey' : ''}`}>
 													<td className="pl-5 border-t-[1px] border-r-[1px]">{event.time}</td>
 													<td className="text-center border-t-[1px] border-r-[1px]">{event.country}</td>
 													<td className="border-t-[1px] border-r-[1px]">
