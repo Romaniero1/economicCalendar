@@ -50,7 +50,7 @@ export const Calendar = () => {
 	const [selectedTimezone, setSelectedTimezone] = useState('');
 	const [calendarData, setCalendarData] = useState<CalendarEvent[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
-	const [selectedTimeRange, setSelectedTimeRange] = useState('All');
+	const [selectedTimeRange, setSelectedTimeRange] = useState('Today');
 	const [filteredEvents, setFilteredEvents] = useState<CalendarEvent[]>([]);
 	const [showFilters, setShowFilters] = useState(false);
 	const [showLowImportance, setShowLowImportance] = useState(true);
@@ -347,7 +347,7 @@ export const Calendar = () => {
 										Select/Clear All
 									</button>
 								</div>
-								<div className="w-[245px] h-[90px] overflow-y-auto grid grid-cols-3 gap-2 pt-2">
+								<div id="filter" className="w-[245px] h-[90px] overflow-y-scroll grid grid-cols-3 gap-2 pt-2">
 									{countries.map((country) => (
 										<div key={country} className='flex items-center pt-1'>
 											<input
