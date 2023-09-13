@@ -80,13 +80,45 @@ export const Calendar = () => {
 			const sign = systemOffset < 0 ? '+' : '-';
 			const offsets = `${sign}${Math.abs(systemOffset / 60)}:00`;
 			setSelectedTimezone(offsets);
-		  };
+		};
 
 		const fetchCalendarData = async () => {
 			try {
 				const response = await axios.get("https://tickers.vittaverse.com/api/calendar/economic-calendar");
 				const data = JSON.parse(response.data);
-				setCalendarData(data);
+				const azoresTime = new Date().toLocaleString("en-US", { timeZone: "Atlantic/Azores" }).split(' ')[1].split(':')[0];
+				const systemTime = new Date().getHours();
+				let timeDifference = parseInt(azoresTime) - systemTime;
+
+				console.log(`Разница в часах между Atlantic/Azores и текущим временем системы: ${timeDifference}`);
+				
+				const updatedData = data.map((item: { time: string; date: string | number | Date; }) => {
+					const timeParts = item.time.split(":");
+					const hours = parseInt(timeParts[0]);
+
+					let updatedHours = hours - timeDifference;
+
+					if (updatedHours > 24) {
+						updatedHours -= 24; 
+						const itemDate = new Date(item.date);
+						itemDate.setDate(itemDate.getDate() + 1);
+						item.date = itemDate.toISOString().split('T')[0];
+					} else if (updatedHours < 0) {
+						updatedHours += 24;
+						const itemDate = new Date(item.date);
+						itemDate.setDate(itemDate.getDate() - 1);
+						item.date = itemDate.toISOString().split('T')[0];
+					}
+
+					const updatedTimeString = `${updatedHours}:${timeParts[1]}:${timeParts[2]}`;
+
+					return {
+						...item,
+						time: updatedTimeString,
+					};
+				});
+
+				setCalendarData(updatedData);
 			} catch (error) {
 				console.error("Ошибка при получении данных календаря:", error);
 			}
@@ -105,13 +137,14 @@ export const Calendar = () => {
 		return () => clearInterval(interval);
 	}, []);
 
+	//Прошедшее событие
 	const isEventPast = (eventDate: string, eventTime: string) => {
 		const eventDateTime = new Date(`${eventDate} ${eventTime}`);
 		const currentDateTime = new Date();
 		return eventDateTime < currentDateTime;
 	};
 
-
+	//Фильтр по странам
 	const handleCountryChange = (country: string) => {
 		const newSelectedCountries = [...selectedCountries];
 
@@ -124,6 +157,7 @@ export const Calendar = () => {
 		setSelectedCountries(newSelectedCountries);
 	};
 
+	//Выбрать все страны в фильтре
 	const handleSelectAllCountries = () => {
 		if (selectedCountries.length === countries.length) {
 			setSelectedCountries([]);
@@ -134,12 +168,10 @@ export const Calendar = () => {
 
 	const handleTimezoneChange = (newOffset: string) => {
 		const [hours, minutes] = newOffset.split(':').map(Number);
-
 		const time = new Date();
 		const currentDateTimeUTC = new Date(
 			time.toLocaleString('en-US', { timeZone: 'Atlantic/Azores' })
 		);
-
 		currentDateTimeUTC.setHours(currentDateTimeUTC.getHours() + hours);
 		currentDateTimeUTC.setMinutes(currentDateTimeUTC.getMinutes() + minutes);
 
@@ -154,10 +186,11 @@ export const Calendar = () => {
 		};
 		const dateTimeString = currentDateTimeUTC.toLocaleString('en-US', options);
 		setCurrentDateTime(dateTimeString);
-
+		console.log(newOffset)
 		setSelectedTimezone(newOffset);
 	};
 
+	//Фильтр
 	const filteredEvent = calendarData.filter((event) =>
 		event.event.toLowerCase().includes(searchQuery.toLowerCase()) &&
 		((event.impact === 'Low' && showLowImportance) ||
@@ -168,7 +201,6 @@ export const Calendar = () => {
 		(endDate === '' || new Date(event.date) <= new Date(endDate))
 	);
 
-
 	const groupedCalendarData: { [date: string]: CalendarEvent[] } = {};
 
 	filteredEvent.forEach((event) => {
@@ -176,17 +208,16 @@ export const Calendar = () => {
 			groupedCalendarData[event.date] = [];
 		}
 		groupedCalendarData[event.date].push(event);
-		console.log(groupedCalendarData)
 	});
 
-
-
+	//Иконки важности
 	const importanceIcons: ImportanceIcons = {
 		Low: <Image src={Star1} width={56} height={16} alt="Low" />,
 		Medium: <Image src={Star2} width={56} height={16} alt="Medium" />,
 		High: <Image src={Star3} width={56} height={16} alt="High" />,
 	};
 
+	//Фильтр для кнопок с периодом
 	const handleTimeRangeClick = (timeRange: string) => {
 		if (timeRange === selectedTimeRange) {
 			setSelectedTimeRange("All");
@@ -206,25 +237,24 @@ export const Calendar = () => {
 			} else if (timeRange === "Next week") {
 				filteredData = calendarData.filter((event) => event.date >= formattedNextMonday && event.date <= formattedNextSunday);
 			}
-			//console.log(filteredData)
 			setFilteredEvents(filteredData);
 		}
 	};
 
+	//Установка дат
 	const handleStartDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setStartDate(event.target.value);
 	};
-
-
 	const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setEndDate(event.target.value);
 	};
-
+	
+    // Очистка фильтров
 	const handleClearDateFilters = () => {
 		setStartDate('');
 		setEndDate('');
 	};
-	  
+
 	return (
 		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white">
 			<div className="flex justify-between items-center">
@@ -458,25 +488,30 @@ export const Calendar = () => {
 										<React.Fragment key={date}>
 											<tr className="h-12 bg-white-rgba">
 												<td colSpan={7} className="pl-5 border-t-[1px]">
-												{format(parseISO(date), 'EEEE, MMM dd, yyyy')}
+													{format(parseISO(date), 'EEEE, MMM dd, yyyy')}
 
 												</td>
 											</tr>
-											{eventsForDate.reverse().map((event, index) => (
-												<tr key={index} className={`h-12 ${isEventPast(event.date, event.time) ? 'text-grey' : ''}`}>
-													<td className="pl-5 border-t-[1px] border-r-[1px]">{event.time}</td>
-													<td className="text-center border-t-[1px] border-r-[1px]">{event.country}</td>
-													<td className="border-t-[1px] border-r-[1px]">
-														<div className='flex justify-center items-center h-[100%]'>
-															{importanceIcons[event.impact as keyof ImportanceIcons]}
-														</div>
-													</td>
-													<td className="pl-5 border-t-[1px] border-r-[1px]">{event.event}</td>
-													<td className="text-center border-t-[1px] border-r-[1px]">{event.actual}</td>
-													<td className="text-center border-t-[1px] border-r-[1px]">{event.estimate}</td>
-													<td className="text-center border-t-[1px]">{event.previous}</td>
-												</tr>
-											))}
+											{eventsForDate.reverse().map((event, index) => {
+												const eventTime = event.time.split(':');
+												const formattedTime = `${eventTime[0].padStart(2, '0')}:${eventTime[1]}`;
+												return (
+													<tr key={index} className={`h-12 ${isEventPast(event.date, event.time) ? 'text-grey' : ''}`}>
+														<td className="pl-5 border-t-[1px] border-r-[1px]">{formattedTime}</td>
+
+														<td className="text-center border-t-[1px] border-r-[1px]">{event.country}</td>
+														<td className="border-t-[1px] border-r-[1px]">
+															<div className='flex justify-center items-center h-[100%]'>
+																{importanceIcons[event.impact as keyof ImportanceIcons]}
+															</div>
+														</td>
+														<td className="pl-5 border-t-[1px] border-r-[1px]">{event.event}</td>
+														<td className="text-center border-t-[1px] border-r-[1px]">{event.actual}</td>
+														<td className="text-center border-t-[1px] border-r-[1px]">{event.estimate}</td>
+														<td className="text-center border-t-[1px]">{event.previous}</td>
+													</tr>
+												)
+											})}
 										</React.Fragment>
 									);
 								}
