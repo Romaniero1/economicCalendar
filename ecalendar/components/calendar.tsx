@@ -6,6 +6,9 @@ import axios from 'axios';
 import { offsets, times, countries } from './../constants';
 import { format, parseISO } from 'date-fns';
 import { parse } from 'date-fns';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import {
 	getFormattedToday,
 	getFormattedYesterday,
@@ -46,6 +49,27 @@ const formattedThisSunday = getFormattedThisSunday();
 const formattedNextMonday = getFormattedNextMonday();
 const formattedNextSunday = getFormattedNextSunday();
 
+
+i18n.use(initReactI18next).init({
+	resources: {
+		tr: {
+			translation: require('../i18n/translations/tr.json'),
+		},
+		en: {
+			translation: require('../i18n/translations/en.json'),
+		},
+	    fa: {
+			translation: require('../i18n/translations/fa.json'), 
+		},
+	},
+	lng: 'en',
+	fallbackLng: 'en',
+	interpolation: {
+		escapeValue: false 
+	}
+});
+
+
 export const Calendar = () => {
 	const [currentDateTime, setCurrentDateTime] = useState('');
 	const [selectedTimezone, setSelectedTimezone] = useState('');
@@ -60,6 +84,14 @@ export const Calendar = () => {
 	const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
+	const [selectedLanguage, setSelectedLanguage] = useState('en'); // Начальный выбранный язык - английский ('en')
+
+
+	const { t, i18n } = useTranslation();
+
+	const changeLanguage = (language: string | undefined) => {
+		i18n.changeLanguage(language);
+	};
 
 	const fetchCalendarData = async (newOffset: string) => {
 		try {
@@ -202,7 +234,6 @@ export const Calendar = () => {
 		console.log(newOffset)
 		setSelectedTimezone(newOffset);
 		fetchCalendarData(newOffset);
-
 	};
 
 	//Фильтр
@@ -276,11 +307,11 @@ export const Calendar = () => {
 				<div className="flex lg:flex-row flex-col">
 					<div className="">
 						<h1 className="">
-							Economic
+							{t('Economic')}
 						</h1>
 					</div>
 					<div className="pl-3 bg-clip-text text-transparent bg-gradient-to-b from-[#30975b] to-[#094622]">
-						<h1>Calendar</h1>
+						<h1>{t('Calendar')}</h1>
 					</div>
 				</div>
 				<div className="flex items-center ml-10 flex-col lg:flex-row">
@@ -302,6 +333,23 @@ export const Calendar = () => {
 							</select>
 						</h2>
 					</div>
+					<div className="flex items-center justify-center ml-2 px-3 border-2 rounded-full mt-4 lg:mt-0 w-[60px] h-[36px] hover:border-[3px]">
+						<label htmlFor="language-select" className="sr-only">Select Language</label>
+						<select
+							id="language-select"
+							className="border-none bg-transparent outline-none"
+							value={selectedLanguage}
+							onChange={(e) => {
+								setSelectedLanguage(e.target.value);
+								changeLanguage(e.target.value);
+							}}
+						>
+							<option value="en">EN</option>
+							<option value="tr">TR</option>
+							<option value="fa">FA</option>
+						</select>
+					</div>
+
 				</div>
 			</div>
 
