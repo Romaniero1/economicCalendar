@@ -5,6 +5,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import { offsets, times, countries } from './../constants';
 import { format, parseISO } from 'date-fns';
+import { parse } from 'date-fns';
 import {
 	getFormattedToday,
 	getFormattedYesterday,
@@ -60,6 +61,55 @@ export const Calendar = () => {
 	const [startDate, setStartDate] = useState('');
 	const [endDate, setEndDate] = useState('');
 
+	const fetchCalendarData = async (newOffset: string) => {
+		try {
+			const response = await axios.get("https://tickers.vittaverse.com/api/calendar/economic-calendar");
+			const data = JSON.parse(response.data);
+			const azoresTime = new Date().toLocaleTimeString('en-US', { timeZone: 'Atlantic/Azores', hour12: false }).split(':')[0];
+			const systemTime = new Date().getHours();
+			let timeDifference = parseInt(azoresTime) - systemTime;
+
+			const numericOffset = parseFloat(newOffset);
+			console.log(`Разница в часах между Atlantic/Azores и текущим временем системы: ${numericOffset}`);
+
+			const updatedData = data.map((item: { time: string; date: string | number | Date; }) => {
+				const timeParts = item.time.split(":");
+				const hours = parseInt(timeParts[0]);
+
+				let updatedHours;
+
+				if (!isNaN(numericOffset)) {
+					updatedHours = hours + numericOffset;
+				} else {
+					updatedHours = hours - timeDifference;
+				}
+
+				if (updatedHours >= 24) {
+					updatedHours -= 24;
+					const itemDate = new Date(item.date);
+					itemDate.setDate(itemDate.getDate() + 1);
+					item.date = itemDate.toISOString().split('T')[0];
+				} else if (updatedHours < 0) {
+					updatedHours += 24;
+					const itemDate = new Date(item.date);
+					itemDate.setDate(itemDate.getDate() - 1);
+					item.date = itemDate.toISOString().split('T')[0];
+				}
+
+				const updatedTimeString = `${updatedHours}:${timeParts[1]}:${timeParts[2]}`;
+
+				return {
+					...item,
+					time: updatedTimeString,
+				};
+			});
+
+			setCalendarData(updatedData);
+		} catch (error) {
+			console.error("Ошибка при получении данных календаря:", error);
+		}
+	};
+
 	useEffect(() => {
 		const formatDateTime = () => {
 			const options = {
@@ -82,67 +132,30 @@ export const Calendar = () => {
 			setSelectedTimezone(offsets);
 		};
 
-		const fetchCalendarData = async () => {
-			try {
-				const response = await axios.get("https://tickers.vittaverse.com/api/calendar/economic-calendar");
-				const data = JSON.parse(response.data);
-				const azoresTime = new Date().toLocaleString("en-US", { timeZone: "Atlantic/Azores" }).split(' ')[1].split(':')[0];
-				const systemTime = new Date().getHours();
-				let timeDifference = parseInt(azoresTime) - systemTime;
 
-				console.log(`Разница в часах между Atlantic/Azores и текущим временем системы: ${timeDifference}`);
-				
-				const updatedData = data.map((item: { time: string; date: string | number | Date; }) => {
-					const timeParts = item.time.split(":");
-					const hours = parseInt(timeParts[0]);
-
-					let updatedHours = hours - timeDifference;
-
-					if (updatedHours > 24) {
-						updatedHours -= 24; 
-						const itemDate = new Date(item.date);
-						itemDate.setDate(itemDate.getDate() + 1);
-						item.date = itemDate.toISOString().split('T')[0];
-					} else if (updatedHours < 0) {
-						updatedHours += 24;
-						const itemDate = new Date(item.date);
-						itemDate.setDate(itemDate.getDate() - 1);
-						item.date = itemDate.toISOString().split('T')[0];
-					}
-
-					const updatedTimeString = `${updatedHours}:${timeParts[1]}:${timeParts[2]}`;
-
-					return {
-						...item,
-						time: updatedTimeString,
-					};
-				});
-
-				setCalendarData(updatedData);
-			} catch (error) {
-				console.error("Ошибка при получении данных календаря:", error);
-			}
-		};
-
+		let initialOffset = '';
 		formatDateTime();
 		getSystemTimezone();
-		fetchCalendarData();
+		fetchCalendarData(initialOffset);
 
 		const interval = setInterval(() => {
 			formatDateTime();
 			getSystemTimezone();
-			fetchCalendarData();
+			fetchCalendarData(initialOffset);
 		}, 60000);
 
 		return () => clearInterval(interval);
 	}, []);
 
 	//Прошедшее событие
+	const currentDa = parse(currentDateTime, "EEEE, MMMM d, yyyy 'at' h:mm a", new Date());
+	//console.log(currentDa)
 	const isEventPast = (eventDate: string, eventTime: string) => {
 		const eventDateTime = new Date(`${eventDate} ${eventTime}`);
-		const currentDateTime = new Date();
-		return eventDateTime < currentDateTime;
+		//console.log(eventDateTime)
+		return eventDateTime < currentDa;
 	};
+	//console.log(currentDateTime)
 
 	//Фильтр по странам
 	const handleCountryChange = (country: string) => {
@@ -188,6 +201,8 @@ export const Calendar = () => {
 		setCurrentDateTime(dateTimeString);
 		console.log(newOffset)
 		setSelectedTimezone(newOffset);
+		fetchCalendarData(newOffset);
+
 	};
 
 	//Фильтр
@@ -248,8 +263,8 @@ export const Calendar = () => {
 	const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setEndDate(event.target.value);
 	};
-	
-    // Очистка фильтров
+
+	// Очистка фильтров
 	const handleClearDateFilters = () => {
 		setStartDate('');
 		setEndDate('');
