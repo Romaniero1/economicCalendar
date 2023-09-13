@@ -306,8 +306,8 @@ export const Calendar = () => {
 	};
 
 	return (
-		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white">
-			<div className="flex justify-between items-center">
+		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white ">
+			<div className="flex md:flex-row flex-col justify-between items-center overflow-hidden">
 				<div className="flex lg:flex-row flex-col">
 				<link href="https://db.onlinewebfonts.com/c/f8ecf8ba4bdf80a4ba4277a3b2f702b6?family=PeydaWeb+SemBd" rel="stylesheet" />
 					<div>
@@ -319,11 +319,12 @@ export const Calendar = () => {
 						<h1 style={selectedLanguage === 'fa' ? farsiTextStyle : {}}>{t('Calendar')}</h1>
 					</div>
 				</div>
-				<div className="flex items-center ml-10 flex-col lg:flex-row">
+				<div className="flex items-center lg:items-left ml-0 mt-4 lg:mt-0 lg:ml-10 flex-col lg:flex-row">
 					<div>
 						<h2>{currentDateTime}</h2>
 					</div>
-					<div className="ml-6 px-3 border-2 rounded-full mt-4 lg:mt-0">
+					<div className='flex flex-row'>
+					<div className="ml-0 lg:ml-6 px-3 border-2 rounded-full mt-4 lg:mt-0">
 						<h2>
 							<select
 								className="timezone-dropdown select-none bg-transparent w-[110px] h-8 "
@@ -355,7 +356,7 @@ export const Calendar = () => {
 							<option value="fa" className='text-black bg-transparent'>FA</option>
 						</select>
 					</div>
-
+					</div>
 				</div>
 			</div>
 
@@ -370,11 +371,11 @@ export const Calendar = () => {
 					/>
 				</div>
 				<div className='flex pt-2 lg:pt-0 justify-between'>
-					<div className="flex pl-0 lg:pl-4">
+					<div className="flex flex-wrap  md:flex pl-0 lg:pl-4">
 						{times.map((time, index) => (
 							<button
 								key={index}
-								className={`flex justify-center items-center w-[100px] h-10 rounded-full 
+								className={`flex justify-center items-center w-[90px] md:w-[100px] h-10 rounded-full 
 			  				bg-transparent border-white border-[1px] hover:bg-white hover:text-black 
 			  				${selectedTimeRange === time ? 'bg-white text-black' : ''}`
 								}
@@ -506,7 +507,7 @@ export const Calendar = () => {
 					</div>
 				</div>
 			</div>
-			<div className='lg:border-[1px] rounded-t-[20px] rounded-b-[20px] rounded- mt-4'>
+			<div className='lg:border-[1px] rounded-t-[20px] rounded-b-[20px] mt-4 overflow-auto'>
 				<table className="w-full border-[1px] rounded-t-[20px] rounded-b-[20px]">
 					<thead className=" h-12">
 						<tr>
