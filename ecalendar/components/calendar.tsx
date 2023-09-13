@@ -93,6 +93,10 @@ export const Calendar = () => {
 		i18n.changeLanguage(language);
 	};
 
+	const farsiTextStyle = {
+		fontFamily: "'PeydaWeb SemBd', sans-serif",
+	  };
+
 	const fetchCalendarData = async (newOffset: string) => {
 		try {
 			const response = await axios.get("https://tickers.vittaverse.com/api/calendar/economic-calendar");
@@ -305,13 +309,14 @@ export const Calendar = () => {
 		<div className="h-full flex flex-col mx-[8%] pt-10 bg-black text-white">
 			<div className="flex justify-between items-center">
 				<div className="flex lg:flex-row flex-col">
-					<div className="">
-						<h1 className="">
+				<link href="https://db.onlinewebfonts.com/c/f8ecf8ba4bdf80a4ba4277a3b2f702b6?family=PeydaWeb+SemBd" rel="stylesheet" />
+					<div>
+						<h1 style={selectedLanguage === 'fa' ? farsiTextStyle : {}}>
 							{t('Economic')}
 						</h1>
 					</div>
 					<div className="pl-3 bg-clip-text text-transparent bg-gradient-to-b from-[#30975b] to-[#094622]">
-						<h1>{t('Calendar')}</h1>
+						<h1 style={selectedLanguage === 'fa' ? farsiTextStyle : {}}>{t('Calendar')}</h1>
 					</div>
 				</div>
 				<div className="flex items-center ml-10 flex-col lg:flex-row">
@@ -337,16 +342,17 @@ export const Calendar = () => {
 						<label htmlFor="language-select" className="sr-only">Select Language</label>
 						<select
 							id="language-select"
-							className="border-none bg-transparent outline-none"
+							className="border-none bg-transparent outline-none>
+							"
 							value={selectedLanguage}
 							onChange={(e) => {
 								setSelectedLanguage(e.target.value);
 								changeLanguage(e.target.value);
 							}}
 						>
-							<option value="en">EN</option>
-							<option value="tr">TR</option>
-							<option value="fa">FA</option>
+							<option value="en" className='text-black bg-transparent'>EN</option>
+							<option value="tr" className='text-black bg-transparent'>TR</option>
+							<option value="fa" className='text-black bg-transparent'>FA</option>
 						</select>
 					</div>
 
