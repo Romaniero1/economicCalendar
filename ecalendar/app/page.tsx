@@ -10,7 +10,7 @@ export default function Home() {
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
 			<main className='w-full h-screen bg-black'>
-				<div className='w-full bg-black'>
+				<div className='w-screen h-full bg-black'>
 				<Calendar />
 				</div>
 
