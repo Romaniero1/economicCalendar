@@ -9,8 +9,11 @@ export default function Home() {
 				<meta name='description' content='Vittaverse' />
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<main className='w-full h-full bg-black'>
+			<main className='w-full h-screen bg-black'>
+				<div className='w-full bg-black'>
 				<Calendar />
+				</div>
+
 			</main>
 		</div>
 	);
