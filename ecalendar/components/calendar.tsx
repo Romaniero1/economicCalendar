@@ -106,7 +106,7 @@ export const Calendar = () => {
 			let timeDifference = parseInt(azoresTime) - systemTime;
 
 			const numericOffset = parseFloat(newOffset);
-			console.log(`Разница в часах между Atlantic/Azores и текущим временем системы: ${numericOffset}`);
+			//console.log(`Разница в часах между Atlantic/Azores и текущим временем системы: ${numericOffset}`);
 
 			const updatedData = data.map((item: { time: string; date: string | number | Date; }) => {
 				const timeParts = item.time.split(":");
